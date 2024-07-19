@@ -4,11 +4,11 @@ const express = require('express')
 const app = express()
 //Exscisics 1
 
-app.get('/greetings/:username',(req,res)=>{
-    res.send(`Hello ${req.params.username}`  )
-    const name =req.params.name
-    res.send
- })
+app.get('/greetings/:username', (req, res) => {
+    const username = req.params.username;
+    res.send(`Hello ${username}`); 
+});
+
 
 
 
@@ -31,15 +31,16 @@ const collectibles = [
 
   app.get('/collectibles//:collectiblesNumbers',(req,res)=>{
 
-    const item = collectibles.values();
-   for (const value of item) {
-    if (req.params.collectiblesNumbers===value.name){
-     res.send(`So, you want the ${value.name} For${value.price} , it can be yours!`)
-    }
-    else{
-        res.send('This item is not yet in stock. Check back soon!')
-    }
-   }
+    
+    if (isNaN(index) || index < 0 || index >= collectibles.length) {
+        return res.send("This item is not yet in stock. Check back soon!");
+      }
+         
+    
+      const item = collectibles[index];
+    
+     
+      res.send(`So, you want the ${item.name}? For ${item.price}, it can be yours!`);})
     //Exscisics 4
     
     const shoes = [
@@ -52,13 +53,17 @@ const collectibles = [
         { name: "Fifty-Inch Heels", price: 175, type: "heel" }
     ];
 
+    app.get('/shoes',(req,res)=>{
+        if (req.query['min-price']) {
+            const minPrice = parseFloat(req.query['min-price']);
+           let filteredShoes = filteredShoes.filter(shoe => shoe.price >= minPrice);
+        }
+    })
+ 
 
- })
 
 
 
-
- app.listen(3000,()=>{
-    console.log('Listening on port 3000')
-
-})
+ app.listen(3000, () => {
+    console.log('Listening on port 3000');
+});
