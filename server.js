@@ -25,16 +25,15 @@ const collectibles = [
   { name: "vintage 1970s yogurt SOLD AS-IS", price: 0.99 },
 ];
 
-app.get("/collectibles//:index", (req, res) => {
-  const index = parseInt(req.params.index, 10);
+app.get("/collectibles/:index", (req, res) => {
+  const index = req.params.index;
 
-  if (isNaN(index) || index < 0 || index >= collectibles.length) {
-    res.send("This item is not yet in stock. Check back soon!");
+  if (index >= 0 && index < collectibles.length) {
+    const name = collectibles[index].name;
+    const price = collectibles[index].price;
+    res.send(`<h1>Did you want the ${name}? For $${price}</h1>`);
   } else {
-    const item = collectibles[index];
-    res.send(
-      `So, you want the ${item.name}? For ${item.price}, it can be yours!`
-    );
+    res.send(`This item is not available`);
   }
 });
 //Exscisics 4
@@ -50,22 +49,31 @@ const shoes = [
 ];
 
 app.get("/shoes", (req, res) => {
+  const arr1 = [];
+  const type = req.query.type;
   const minPrice = req.query.minPrice;
   const maxPrice = req.query.maxPrice;
-  const type = req.query.type;
-  let FilterShoes = shoes;
 
-  if (minPrice) FilterShoes = shoes.filter((shoe) => shoe.price > minPrice);
+  shoes.forEach((shoe) => {
+    if (
+      (!minPrice || shoe.price >= minPrice) &&
+      (!maxPrice || shoe.price <= maxPrice) &&
+      (!type || shoe.type === type)
+    ) {
+      arr1.push(shoe);
+    }
+  });
 
-  if (maxPrice) FilterShoes = shoes.filter((shoe) => shoe.price < maxPrice);
+  if (arr1.length === 0) {
+    res.send("not found");
+  }
 
-  if (type) FilterShoes = shoes.filter((shoe) => shoe.type === type);
+  let items = "";
+  for (let i = 0; i < arr1.length; i++) {
+    items += ` <h1>  name :${arr1[i].name}  price :${arr1[i].price} type: ${arr1[i].type} </br></h1>  `;
+  }
 
-  let print = "";
-  FilterShoes.forEach(
-    (shoe) => (print += `${shoe.name} - ${shoe.price}$ - ${shoe.type}<br>`)
-  );
-  res.send(print);
+  res.send(items);
 });
 
 app.listen(3000, () => {
