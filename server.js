@@ -9,13 +9,16 @@ app.get("/greetings/:username", (req, res) => {
 });
 
 //Exscisics 2
-app.get("/roll/:rollNumber", (req, res) => {
-  if (isNaN(req.params.rollNumber)) {
-    return res.send("You must specify a number.");
-  }
-  const randomNumber = Math.floor(Math.random() * (parseInt(rollNumber) + 1));
 
-  res.send(`You rolled a ${randomNumber}`);
+app.get("/roll/:number", (req, res) => {
+  const number = parseInt(req.params.number, 10);
+
+  if (isNaN(number) || number <= 0) {
+    res.send("You must specify a number.");
+  } else {
+    const roll = Math.floor(Math.random() * (number + 1));
+    res.send(`You rolled a ${roll}.`);
+  }
 });
 //Exscisics 3
 
@@ -26,15 +29,22 @@ const collectibles = [
 ];
 
 app.get("/collectibles/:index", (req, res) => {
-  const index = req.params.index;
+  const index = parseInt(req.params.index, 10);
 
-  if (index >= 0 && index < collectibles.length) {
-    const name = collectibles[index].name;
-    const price = collectibles[index].price;
-    res.send(`<h1>Did you want the ${name}? For $${price}</h1>`);
-  } else {
-    res.send(`This item is not available`);
+  if (isNaN(index) || index < 0 || index >= collectibles.length) {
+    return res.send("This item is not yet in stock. Check back soon!");
   }
+
+  const item = collectibles[index];
+  res.send(
+    `So, you want the ${item.name}? For ${item.price}, it can be yours!`
+  );
+});
+
+app.get("/hello", (req, res) => {
+  const name = req.query.name || "Guest";
+  const age = req.query.age || "unknown";
+  res.send(`Hello there, ${name}! I hear you are ${age} years old!`);
 });
 //Exscisics 4
 
@@ -49,31 +59,29 @@ const shoes = [
 ];
 
 app.get("/shoes", (req, res) => {
-  const arr1 = [];
-  const type = req.query.type;
-  const minPrice = req.query.minPrice;
-  const maxPrice = req.query.maxPrice;
+  const { minPrice, maxPrice, type } = req.query;
 
-  shoes.forEach((shoe) => {
-    if (
-      (!minPrice || shoe.price >= minPrice) &&
-      (!maxPrice || shoe.price <= maxPrice) &&
-      (!type || shoe.type === type)
-    ) {
-      arr1.push(shoe);
-    }
-  });
+  const filteredShoes = shoes;
 
-  if (arr1.length === 0) {
-    res.send("not found");
+  if (minPrice) {
+    filteredShoes = filteredShoes.filter(
+      (shoe) => shoe.price >= parseFloat(minPrice)
+    );
   }
 
-  let items = "";
-  for (let i = 0; i < arr1.length; i++) {
-    items += ` <h1>  name :${arr1[i].name}  price :${arr1[i].price} type: ${arr1[i].type} </br></h1>  `;
+  if (maxPrice) {
+    filteredShoes = filteredShoes.filter(
+      (shoe) => shoe.price <= parseFloat(maxPrice)
+    );
   }
 
-  res.send(items);
+  if (type) {
+    filteredShoes = filteredShoes.filter(
+      (shoe) => shoe.type === type.toLowerCase()
+    );
+  }
+
+  res.json(filteredShoes);
 });
 
 app.listen(3000, () => {
